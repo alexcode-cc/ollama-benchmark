@@ -91,6 +91,33 @@ def _format_bytes(n: int) -> str:
     return f"{n:.1f} PB"
 
 
+def show_model_resource_usage(model: str) -> None:
+    """顯示指定模型的資源佔用情形（透過 /api/ps）"""
+    try:
+        running = get_running_models()
+        for m in running:
+            if m.get("name") == model or m.get("model") == model:
+                size = m.get("size", 0)
+                size_vram = m.get("size_vram", 0)
+                
+                if size > 0:
+                    vram_pct = (size_vram / size) * 100 if size > 0 else 0
+                    print(f"📊 資源佔用：模型大小 {_format_bytes(size)}，VRAM {_format_bytes(size_vram)} ({vram_pct:.1f}%)", flush=True)
+                    
+                    if size_vram < size * 0.95:  # 未達 95% 表示部分在系統記憶體
+                        system_mem = size - size_vram
+                        print(f"   ⚠️  系統記憶體 {_format_bytes(system_mem)}（效能可能下降）", flush=True)
+                else:
+                    print(f"📊 資源佔用：模型已載入", flush=True)
+                return
+        
+        # 模型不在執行清單中
+        print(f"📊 資源佔用：模型資訊無法取得", flush=True)
+    except requests.RequestException:
+        # 無法連線 /api/ps，靜默處理
+        pass
+
+
 def diagnose_timeout(model: str, got_any_token: bool) -> str:
     """在逾時後，透過 /api/ps 診斷可能原因並回傳描述字串。
     got_any_token：在逾時前是否已收到任何生成 token。
@@ -148,8 +175,9 @@ class OllamaError(Exception):
     """Ollama API 回傳的錯誤"""
 
 
-def llama_local(prompt: str, model: str, *, timeout: int = 3600) -> str:
-    """呼叫 Ollama 產生回應（使用 streaming 模式）。timeout：逾時秒數，預設 3600。"""
+def llama_local(prompt: str, model: str, *, timeout: int = 3600, show_resource: bool = True) -> str:
+    """呼叫 Ollama 產生回應（使用 streaming 模式）。timeout：逾時秒數，預設 3600。
+    show_resource：是否在收到第一個 token 後顯示資源佔用。"""
     resp = requests.post(
         f"{OLLAMA_BASE_URL}/api/generate",
         json={
@@ -163,6 +191,8 @@ def llama_local(prompt: str, model: str, *, timeout: int = 3600) -> str:
     resp.raise_for_status()
 
     full_response: list[str] = []
+    first_token_received = False
+    
     for line in resp.iter_lines():
         if not line:
             continue
@@ -172,6 +202,10 @@ def llama_local(prompt: str, model: str, *, timeout: int = 3600) -> str:
             raise OllamaError(chunk["error"])
         token = chunk.get("response", "")
         if token:
+            # 收到第一個 token 時顯示資源佔用
+            if not first_token_received and show_resource:
+                first_token_received = True
+                show_model_resource_usage(model)
             full_response.append(token)
         if chunk.get("done"):
             break
@@ -182,6 +216,8 @@ def llama_local(prompt: str, model: str, *, timeout: int = 3600) -> str:
 def llama_local_greeting(prompt: str, model: str, *, timeout: int = 30) -> str:
     """專為打招呼設計：使用 streaming 模式，追蹤是否收到 token 以便逾時診斷。"""
     got_any_token = False
+    first_token_received = False
+    
     try:
         resp = requests.post(
             f"{OLLAMA_BASE_URL}/api/generate",
@@ -204,6 +240,10 @@ def llama_local_greeting(prompt: str, model: str, *, timeout: int = 30) -> str:
                 raise OllamaError(chunk["error"])
             token = chunk.get("response", "")
             if token:
+                # 收到第一個 token 時顯示資源佔用
+                if not first_token_received:
+                    first_token_received = True
+                    show_model_resource_usage(model)
                 got_any_token = True
                 full_response.append(token)
             if chunk.get("done"):
