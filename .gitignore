@@ -55,3 +55,5 @@ chats/
 # Local config
 .env.local
 config.local.py
+zprofile
+uv.lock
