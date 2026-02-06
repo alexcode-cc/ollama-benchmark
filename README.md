@@ -42,6 +42,21 @@ uv sync
 pip install -e .
 ```
 
+### 設定檔（選用）
+
+複製 `.env.example` 為 `.env` 並根據需求調整設定：
+
+```bash
+cp .env.example .env
+```
+
+可設定項目：
+- `OLLAMA_BASE_URL`：Ollama 伺服器位址（預設 `http://localhost:11434`）
+- `GREETING_PROMPT`：hi-ai.py 的打招呼 prompt（預設 `你是誰`）
+- `GREETING_TIMEOUT_SECONDS`：打招呼逾時秒數（預設 `30`）
+
+若不建立 `.env` 檔案，程式會使用預設值。
+
 ## 使用方式
 
 ### 基準測試
