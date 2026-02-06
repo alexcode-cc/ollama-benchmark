@@ -25,7 +25,7 @@
 ## 系統需求
 
 - Python >= 3.10
-- [Ollama](https://ollama.ai/) 伺服器在本地運行（預設 `http://localhost:11434`）
+- [Ollama](https://ollama.ai/) 伺服器（本地或遠端，預設 `http://localhost:11434`）
 - 至少安裝一個 Ollama 模型
 
 ## 安裝
@@ -56,6 +56,20 @@ cp .env.example .env
 - `GREETING_TIMEOUT_SECONDS`：打招呼逾時秒數（預設 `30`）
 
 若不建立 `.env` 檔案，程式會使用預設值。
+
+#### 連線遠端 Ollama 伺服器
+
+修改 `.env` 中的 `OLLAMA_BASE_URL` 即可連線遠端伺服器：
+
+```env
+# 區域網路中的伺服器
+OLLAMA_BASE_URL=http://192.168.1.100:11434
+
+# 透過 HTTPS 反向代理
+OLLAMA_BASE_URL=https://ollama.example.com
+```
+
+詳細的遠端伺服器設定說明（包含伺服器端設定、Docker 部署、Nginx 反向代理、安全性建議）請參閱 [遠端 Ollama 伺服器連線指南](docs/remote-server.md)。
 
 ## 使用方式
 
@@ -129,7 +143,8 @@ ollama-benchmark/
 │   ├── hi-ai-technical.md   # hi-ai.py 技術文件
 │   ├── benchmark-technical.md # ollama-benchmark.py 技術文件
 │   ├── ollama-api.md        # Ollama API 串接說明
-│   └── error-handling.md    # 錯誤處理與 OOM 診斷機制
+│   ├── error-handling.md    # 錯誤處理與 OOM 診斷機制
+│   └── remote-server.md    # 遠端 Ollama 伺服器連線指南
 └── chats/                   # 測試報告輸出目錄
     └── benchmark_YYYYMMDD_HHMMSS/
         ├── benchmark_report.json
@@ -145,6 +160,7 @@ ollama-benchmark/
 - [ollama-benchmark.py 技術文件](docs/benchmark-technical.md)
 - [Ollama API 串接說明](docs/ollama-api.md)
 - [錯誤處理與 OOM 診斷機制](docs/error-handling.md)
+- [遠端 Ollama 伺服器連線指南](docs/remote-server.md)
 
 ## 授權
 

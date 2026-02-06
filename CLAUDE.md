@@ -23,7 +23,7 @@ uv run ollama-benchmark.py --auto
 uv run hi-ai.py
 ```
 
-前提：需要 Ollama 伺服器在本地運行（`http://localhost:11434`）。
+前提：需要 Ollama 伺服器運行（預設 `http://localhost:11434`，可透過 `.env` 設定連線遠端伺服器）。
 
 ## 架構概覽
 
@@ -57,5 +57,7 @@ docs: 新增專案 README 文件
 - 建置系統為 hatchling，套件管理推薦 uv
 - 選用依賴：`pyreadline3`（僅 Windows，改善 input() 體驗）
 - HTML 報告透過 CDN 載入 Chart.js v4，瀏覽時需網路連線
+- 設定檔透過 `.env` 管理（`.env` 已加入 .gitignore，範本為 `.env.example`）
+- 支援連線遠端 Ollama 伺服器（透過 `OLLAMA_BASE_URL` 環境變數）
 - 測試報告輸出至 `chats/` 目錄（已加入 .gitignore）
 - 詳細技術文件見 `docs/` 目錄
