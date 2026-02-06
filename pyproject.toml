@@ -1,7 +1,7 @@
 [project]
 name = "ollama-benchmark"
-version = "1.0.0"
-description = "Ollama LLM 評測工具"
+version = "0.9.0"
+description = "一個用於測試和評估本地 Ollama LLM 模型效能的基準測試工具"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.10"
@@ -32,8 +32,8 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/alex/ollama-benchmark"
-Repository = "https://github.com/alex/ollama-benchmark"
+Homepage = "https://github.com/alexcode-cc/ollama-benchmark"
+Repository = "https://github.com/alexcode-cc/ollama-benchmark"
 
 [build-system]
 requires = ["hatchling"]
