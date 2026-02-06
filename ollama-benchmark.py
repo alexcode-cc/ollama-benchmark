@@ -1,3 +1,4 @@
+import argparse
 import html
 import json
 import time
@@ -390,6 +391,22 @@ new Chart(document.getElementById('chartLengthByTest'), {{
 # ---------------------------------------------------------------------------
 
 def main():
+    parser = argparse.ArgumentParser(
+        description="Ollama 模型基準測試工具",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+範例：
+  python ollama-benchmark.py           # 正常模式，每個模型後詢問是否互動
+  python ollama-benchmark.py --auto    # 自動模式，跳過所有互動確認
+        """,
+    )
+    parser.add_argument(
+        "--auto",
+        action="store_true",
+        help="自動模式：跳過互動確認，自動完成所有模型評測",
+    )
+    args = parser.parse_args()
+
     models = get_available_models()
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -403,13 +420,19 @@ def main():
         print(f" - {m}")
     print()
 
+    if args.auto:
+        print("🤖 自動模式：將跳過所有互動確認\n")
+
     for model in models:
         benchmark_results = run_benchmark_for_model(model)
         report["models"][model] = {"benchmark": benchmark_results}
 
-        choice = input("\n是否要與此模型互動？(y/N)： ").strip().lower()
-        if choice == "y":
-            interactive_chat(model)
+        if not args.auto:
+            choice = input("\n是否要與此模型互動？(y/N)： ").strip().lower()
+            if choice == "y":
+                interactive_chat(model)
+        else:
+            print()  # 自動模式下，模型間加空行
 
     # 建立時間戳記目錄
     run_dir = CHATS_DIR / f"benchmark_{timestamp}"
