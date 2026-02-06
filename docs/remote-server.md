@@ -59,8 +59,11 @@ curl http://192.168.1.100:11434/api/tags
 # 基準測試（自動模式）
 uv run ollama-benchmark.py --auto
 
-# 互動式聊天
+# 互動式聊天（正常模式）
 uv run hi-ai.py
+
+# 互動式聊天（自動模式，僅打招呼）
+uv run hi-ai.py --auto
 ```
 
 程式會自動從 `.env` 讀取 `OLLAMA_BASE_URL` 並連線至該伺服器。
@@ -76,6 +79,7 @@ uv run ollama-benchmark.py --auto
 
 # 或直接在指令前設定
 OLLAMA_BASE_URL=http://192.168.1.100:11434 uv run hi-ai.py
+OLLAMA_BASE_URL=http://192.168.1.100:11434 uv run hi-ai.py --auto
 ```
 
 ---
