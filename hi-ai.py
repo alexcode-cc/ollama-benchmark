@@ -18,7 +18,7 @@ OOM_KEYWORDS = [
 
 def get_available_models() -> list[str]:
     """從 Ollama 伺服器取得目前有提供服務的模型列表"""
-    resp = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=30)
+    resp = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=GREETING_TIMEOUT_SECONDS)
     resp.raise_for_status()
     data = resp.json()
     return [m["name"] for m in data.get("models", [])]
@@ -41,7 +41,7 @@ def unload_model(model_name: str) -> bool:
                 "messages": [],
                 "keep_alive": 0,
             },
-            timeout=30,
+            timeout=GREETING_TIMEOUT_SECONDS,
         )
         resp.raise_for_status()
         return True
@@ -175,8 +175,8 @@ class OllamaError(Exception):
     """Ollama API 回傳的錯誤"""
 
 
-def llama_local(prompt: str, model: str, *, timeout: int = 3600, show_resource: bool = True) -> str:
-    """呼叫 Ollama 產生回應（使用 streaming 模式）。timeout：逾時秒數，預設 3600。
+def llama_local(prompt: str, model: str, *, timeout: int = GREETING_TIMEOUT_SECONDS*60, show_resource: bool = True) -> str:
+    """呼叫 Ollama 產生回應（使用 streaming 模式）。timeout：逾時秒數，預設 GREETING_TIMEOUT_SECONDS*60。
     show_resource：是否在收到第一個 token 後顯示資源佔用。"""
     resp = requests.post(
         f"{OLLAMA_BASE_URL}/api/generate",
@@ -213,7 +213,7 @@ def llama_local(prompt: str, model: str, *, timeout: int = 3600, show_resource: 
     return "".join(full_response).strip() or "(無回覆)"
 
 
-def llama_local_greeting(prompt: str, model: str, *, timeout: int = 30) -> str:
+def llama_local_greeting(prompt: str, model: str, *, timeout: int = GREETING_TIMEOUT_SECONDS) -> str:
     """專為打招呼設計：使用 streaming 模式，追蹤是否收到 token 以便逾時診斷。"""
     got_any_token = False
     first_token_received = False
