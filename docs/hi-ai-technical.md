@@ -251,9 +251,13 @@ got_any_token == True
 
 ---
 
-### `chat_with_model(model: str) -> None`
+### `chat_with_model(model: str, auto_mode: bool = False) -> None`
 
 **用途**：單一模型的完整互動流程——從卸載、打招呼到聊天。
+
+**參數**：
+- `model`：模型名稱
+- `auto_mode`：是否為自動模式。`True` 時跳過互動交談環節，打招呼後直接返回。
 
 **流程**：
 
@@ -263,11 +267,13 @@ got_any_token == True
 3. greeting_for_model()     ← 打招呼測試
    ├─ None → 印出「略過此模型」，return
    └─ 有回覆 → 印出回覆
-4. 詢問使用者：
+4. 若 auto_mode=True：
+   └─ 印出「🤖 自動模式：跳過互動交談…」，return
+5. 詢問使用者：
    ├─ q/quit/exit → exit(0)  離開程式
    ├─ n/no/next   → return   切換下一個模型
    └─ y/yes/Enter → 進入聊天迴圈
-5. 聊天迴圈：
+6. 聊天迴圈：
    ├─ 使用者輸入 → llama_local() 生成回覆
    ├─ n/q/quit → return 切換下一個模型
    └─ 空輸入 → continue 跳過
@@ -280,11 +286,17 @@ got_any_token == True
 **用途**：程式進入點，協調整體執行流程。
 
 **流程**：
-1. 呼叫 `get_available_models()` 取得模型列表
-2. 若無可用模型，印出警告並結束
-3. 印出所有偵測到的模型
-4. 迴圈遍歷每個模型，呼叫 `chat_with_model()`
-5. 全部完成後印出「✅ 所有模型測試完成」
+1. 使用 `argparse` 解析命令列參數：
+   - `--auto`：自動模式，跳過互動確認
+2. 呼叫 `get_available_models()` 取得模型列表
+3. 若無可用模型，印出警告並結束
+4. 印出所有偵測到的模型
+5. 若為自動模式，印出「🤖 自動模式：將跳過所有互動確認」
+6. 迴圈遍歷每個模型，呼叫 `chat_with_model(model, auto_mode=args.auto)`
+7. 全部完成後印出「✅ 所有模型測試完成」
+
+**命令列參數**：
+- `--auto`：自動模式，僅對所有模型打招呼後自動前往下一個模型，不進行互動交談
 
 ---
 

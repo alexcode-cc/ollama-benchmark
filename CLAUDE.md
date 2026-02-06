@@ -19,8 +19,11 @@ uv run ollama-benchmark.py
 # 執行基準測試（自動模式，跳過互動確認）
 uv run ollama-benchmark.py --auto
 
-# 執行互動式聊天
+# 執行互動式聊天（正常模式）
 uv run hi-ai.py
+
+# 執行互動式聊天（自動模式，僅打招呼不交談）
+uv run hi-ai.py --auto
 ```
 
 前提：需要 Ollama 伺服器運行（預設 `http://localhost:11434`，可透過 `.env` 設定連線遠端伺服器）。
