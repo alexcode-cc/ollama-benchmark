@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 from pathlib import Path
@@ -313,8 +314,9 @@ def greeting_for_model(model: str) -> str | None:
         return None
 
 
-def chat_with_model(model: str) -> None:
-    """對單一模型：先打招呼，再詢問是否繼續交談；不繼續則結束此模型流程"""
+def chat_with_model(model: str, auto_mode: bool = False) -> None:
+    """對單一模型：先打招呼，再詢問是否繼續交談；不繼續則結束此模型流程
+    auto_mode: 若為 True，打招呼後自動跳過交談環節，直接前往下一個模型"""
     print("=" * 60, flush=True)
     print(f"🤖 使用模型：{model}", flush=True)
     print("=" * 60, flush=True)
@@ -329,6 +331,11 @@ def chat_with_model(model: str) -> None:
         return
 
     print(f"\n{model}：\n{reply}\n", flush=True)
+
+    # 自動模式：打招呼後直接跳到下一個模型
+    if auto_mode:
+        print("🤖 自動模式：跳過互動交談，前往下一個模型\n", flush=True)
+        return
 
     # 暫停：讓使用者確認是否繼續與此模型交談
     while True:
@@ -361,6 +368,22 @@ def chat_with_model(model: str) -> None:
 
 
 def main():
+    parser = argparse.ArgumentParser(
+        description="Ollama 互動式聊天工具",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+範例：
+  python hi-ai.py           # 正常模式，每個模型打招呼後詢問是否繼續交談
+  python hi-ai.py --auto    # 自動模式，跳過互動確認，僅對所有模型打招呼
+        """,
+    )
+    parser.add_argument(
+        "--auto",
+        action="store_true",
+        help="自動模式：跳過互動確認，僅對所有模型打招呼後自動前往下一個模型",
+    )
+    args = parser.parse_args()
+
     models = get_available_models()
 
     if not models:
@@ -372,8 +395,11 @@ def main():
         print(f" - {m}", flush=True)
     print(flush=True)
 
+    if args.auto:
+        print("🤖 自動模式：將跳過所有互動確認\n", flush=True)
+
     for model in models:
-        chat_with_model(model)
+        chat_with_model(model, auto_mode=args.auto)
 
     print("✅ 所有模型測試完成", flush=True)
 
