@@ -1,13 +1,29 @@
 import argparse
 import html
 import json
+import os
 import time
 from datetime import datetime
 from pathlib import Path
 
 import requests
 
-OLLAMA_BASE_URL = "http://localhost:11434"
+# 載入 .env 設定
+def _load_env():
+    """載入 .env 檔案的環境變數"""
+    env_file = Path(__file__).resolve().parent / ".env"
+    if env_file.exists():
+        with open(env_file, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    key, value = line.split("=", 1)
+                    os.environ.setdefault(key.strip(), value.strip())
+
+_load_env()
+
+# 從環境變數讀取設定，提供預設值
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 CHATS_DIR = Path(__file__).resolve().parent / "chats"
 
 BENCHMARK_PROMPTS = [

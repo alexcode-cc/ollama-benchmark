@@ -1,12 +1,27 @@
 import json
+import os
+from pathlib import Path
+
 import requests
 
-OLLAMA_BASE_URL = "http://localhost:11434"
+# 載入 .env 設定
+def _load_env():
+    """載入 .env 檔案的環境變數"""
+    env_file = Path(__file__).resolve().parent / ".env"
+    if env_file.exists():
+        with open(env_file, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    key, value = line.split("=", 1)
+                    os.environ.setdefault(key.strip(), value.strip())
 
-GREETING_PROMPT = "你是誰"
-#GREETING_PROMPT = "你好，請以繁體中文向我打招呼並簡單自我介紹。"
+_load_env()
 
-GREETING_TIMEOUT_SECONDS = 30
+# 從環境變數讀取設定，提供預設值
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+GREETING_PROMPT = os.getenv("GREETING_PROMPT", "你是誰")
+GREETING_TIMEOUT_SECONDS = int(os.getenv("GREETING_TIMEOUT_SECONDS", "30"))
 
 # 用於比對 Ollama 回傳的 OOM / 記憶體相關錯誤訊息
 OOM_KEYWORDS = [
